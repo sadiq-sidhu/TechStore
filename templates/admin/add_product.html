@@ -1,0 +1,98 @@
+{% extends "admin/admin_base.html" %}
+{% load static %}
+{% block title %}Dashboard{% endblock title %}
+{% block main %}
+<section class="content-main">
+    <div class="row">
+        <div class="col-6">
+            <div class="content-header">
+                <h2 class="content-title">Add New Product</h2>
+            </div>
+        </div>
+    </div>
+    <div class="row">       
+      <form action="" method="post">
+        {% csrf_token %}
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h6>1. General info</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="mb-4">
+                                <label class="form-label">Product Name</label>
+                                <input type="text" name="name" placeholder="Type here" class="form-control">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Description</label>
+                                <textarea placeholder="Type here" name="description" class="form-control" rows="4"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Brand name</label>
+                                <select class="form-select" name="brand" >
+                                    {% for br in brand %}
+                                    <option>{{br.brand_name}} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div> <!-- col.// -->
+                    </div> <!-- row.// -->
+                    <hr class="mb-4 mt-0">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h6>2. Pricing</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="mb-4">
+                                <label class="form-label">Orginal Price</label>
+                                <input type="text" name="price" placeholder="₹00.0" class="form-control">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Discount Price</label>
+                                <input type="text" name="discount" placeholder="₹00.0" class="form-control">
+                            </div>
+                        </div> <!-- col.// -->
+                    </div> <!-- row.// -->
+                    <hr class="mb-4 mt-0">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h6>3. Category</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="mb-4">
+                                {% for category in cat %}
+                                <label class="mb-2 form-check form-check-inline" style="width: 45%;">
+                                    <input class="form-check-input"  name="category" value="{{category.category_name}}" type="radio">
+                                    <span class="form-check-label">{{category.category_name}} </span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div> <!-- col.// -->
+                    </div> <!-- row.// -->
+                    <hr class="mb-4 mt-0">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h6>4. Media</h6>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="mb-4">
+                                <label class="form-label">Thumbnail</label>
+                                <input class="form-control" name="thumbnail" type="file">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Images</label>
+                                <input class="form-control" name="images" type="file" multiple>
+                            </div>
+                        </div> <!-- col.// -->
+                        <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                        <button class="btn btn-md rounded font-sm hover-up justify-content-end" type="submit">Publish</button>
+                    </div> <!-- .row end// -->
+                </div>
+            </div>
+        </div>
+      </form>
+    </div>
+</section>
+{% endblock main %}
