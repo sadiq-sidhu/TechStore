@@ -26,9 +26,10 @@ urlpatterns = [
     path('',include('product.urls')),
     path('',include('home.urls')),
     
-    path('custom_admin/',include('admin.urls')),
-    
-    path('cart/',include('cart.urls')),
+    path('custom_admin/',include('custom_admin.urls')),
+    path('profile/',include('address.urls')),
+    path('',include('cart.urls')),
+    path('',include('wallet.urls')),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

@@ -1,7 +1,7 @@
 {% extends "home/base.html" %}
 {% load static %}
 {% block title %}Product List{% endblock title %}
-
+{% block heading %}Products List{% endblock heading %}
 {% block main_content %}
 
 <div class="section">
@@ -14,17 +14,25 @@
             <div class="col-md-4 col-xs-6">
                 <div class="product">
                     <div class="product-img">
-                        <img src="{{pr.thumbnail.url}}" alt="">
+                        <img src="{% if pr.thumbnail %}{{pr.thumbnail.url}}{% else %}{% static 'img/placeholder.png' %}{% endif %}" alt="">
                         <div class="product-label">
-                            <span class="sale">-30%</span>
+                            {% if pr.get_total_discount_percentage > 0 %}
+                            <span class="sale">-{{ pr.get_total_discount_percentage }}%</span>
+                            {% endif %}
+                            {% if pr.is_new %}
                             <span class="new">NEW</span>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="product-body">
                         <p class="product-category">{{pr.brand.brand_name}}</p>
-                        <h3 class="product-name"><a href="{% url "get_product" pr.product_slug %}">{{pr.product_name}} </a></h3>
-                        
-                        <h4 class="product-price">{{pr.discount}} <del class="product-old-price">${{pr.price}} </del></h4>
+                        <h3 class="product-name"><a href="{% url "get_product" pr.product_slug %}">{{pr.product_name}}</a></h3>
+                        <h4 class="product-price">
+                            ₹{{ pr.get_selling_price|floatformat:2 }}
+                            {% if pr.get_total_discount_percentage > 0 %}
+                            <del class="product-old-price">₹{{ pr.price|floatformat:2 }}</del>
+                            {% endif %}
+                        </h4>
                         <div class="product-rating">
                             <i class="fa fa-star"></i>
                             <i class="fa fa-star"></i>
@@ -39,7 +47,10 @@
                         </div>
                     </div>
                     <div class="add-to-cart">
-                        <button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                        <form action="{% url "add_cart" %}">
+                            <input type="hidden" value="{{pr.uid}}" name="prod_uid">
+                            <button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                        </form>
                     </div>
                 </div>
             </div>

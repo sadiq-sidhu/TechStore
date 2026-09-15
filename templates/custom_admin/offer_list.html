@@ -1,0 +1,121 @@
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}Offer List{% endblock title %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Offer List</h2>
+        <div>
+            <a href="{% url 'add_product_offer' %}" class="btn btn-primary btn-sm">Add Product Offer</a>
+            <a href="{% url 'add_category_offer' %}" class="btn btn-primary btn-sm">Add Category Offer</a>
+            <a href="{% url 'add_brand_offer' %}" class="btn btn-primary btn-sm">Add Brand Offer</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Product Offers</h5>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Discount Type</th>
+                        <th>Discount Value</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offer in product_offers %}
+                    <tr>
+                        <td>{{ offer.product.product_name }}</td>
+                        <td>{{ offer.get_discount_type_display }}</td>
+                        <td>{{ offer.discount_value }} {% if offer.discount_type == 'PERCENTAGE' %}%{% else %}₹{% endif %}</td>
+                        <td>{{ offer.start_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ offer.end_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ offer.is_active|yesno:"Yes,No" }}</td>
+                        <td>
+                            <a href="{% url 'edit_product_offer' offer.pk %}" class="btn btn-sm btn-light">Edit</a>
+                            <a href="{% url 'delete_product_offer' offer.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this offer?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">No product offers available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h5>Category Offers</h5>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Discount Type</th>
+                        <th>Discount Value</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offer in category_offers %}
+                    <tr>
+                        <td>{{ offer.category.category_name }}</td>
+                        <td>{{ offer.get_discount_type_display }}</td>
+                        <td>{{ offer.discount_value }} {% if offer.discount_type == 'PERCENTAGE' %}%{% else %}₹{% endif %}</td>
+                        <td>{{ offer.start_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ offer.end_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ offer.is_active|yesno:"Yes,No" }}</td>
+                        <td>
+                            <a href="{% url 'edit_category_offer' offer.pk %}" class="btn btn-sm btn-light">Edit</a>
+                            <a href="{% url 'delete_category_offer' offer.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this offer?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">No category offers available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h5>Brand Offers</h5>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Brand</th>
+                        <th>Discount Type</th>
+                        <th>Discount Value</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offer in brand_offers %}
+                    <tr>
+                        <td>{{ offer.brand.brand_name }}</td>
+                        <td>{{ offer.get_discount_type_display }}</td>
+                        <td>{{ offer.discount_value }} {% if offer.discount_type == 'PERCENTAGE' %}%{% else %}₹{% endif %}</td>
+                        <td>{{ offer.start_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ offer.end_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ offer.is_active|yesno:"Yes,No" }}</td>
+                        <td>
+                            <a href="{% url 'edit_brand_offer' offer.pk %}" class="btn btn-sm btn-light">Edit</a>
+                            <a href="{% url 'delete_brand_offer' offer.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this offer?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">No brand offers available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock main %}

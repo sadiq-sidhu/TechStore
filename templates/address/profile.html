@@ -1,0 +1,105 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}Address{% endblock title %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="justify-content-center m-5">
+        
+        
+        <h3 class="" >Welcome <span class="text-capitalize">{{request.user}} </span></h3>
+        <div class="col-sm-2 border-end">
+            <ul class="list-unstyled">
+
+                <li class="d-grid"><a href="{% url "profile" %}" class="btn btn-primary" >Profile</a> </li>
+                <li class="d-grid"><a href="{% url "change_email" %}" class="btn">Change Email</a> </li>
+                <li class="d-grid"><a href="{% url "profile_add_address" %}" class="btn">Add address</a> </li>
+                <li class="d-grid"><a href="{% url "view_address" %}" class="btn">Address</a></li>
+                <li class="d-grid"><a href="{% url "change_password" %}" class="btn">New password</a></li>
+
+            </ul>
+        </div> 
+        
+        <div class="col-sm-8 offset-sm-1">
+            <div class="row">
+            <!-- General  -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissable mt-3" role="alert">
+                <a class="panel-close close" data-dismiss="alert">×</a>
+                <i class="fa fa-coffee"></i> This is an <strong>.alert</strong>.  {{ message }}
+            </div> 
+            {% endfor %}
+            {% endif %}
+
+            <div class="" id="">
+                <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+              <div class="card-body media align-items-center">
+                {% if user.profile.profile_image %}
+                <img src="{{user.profile.profile_image.url}}"   alt="profile image" class="d-block" style="width: 80px !important;
+                height: auto;">
+                {% else %}
+                <img src="https://bootdey.com/img/Content/avatar/avatar1.png"  alt="profile image" class="d-block" style=" width: 80px !important;
+                height: auto;">&nbsp;  &nbsp;
+                {% endif %}
+                <div class="media-body ml-4">
+                  <label class="btn btn-danger" style="border-color: #ff2626;
+                  background: transparent;
+                  color: #f31515;
+                  margin-top: 8px;">
+                    Upload new photo
+                    <input type="file" name="img" 
+                    style="position: absolute;
+                    visibility: hidden;
+                    width: 1px;
+                    height: 1px;
+                    padding: 1px;
+                    margin: 5px;
+                    opacity: 0;">
+                  </label> &nbsp;
+                  
+
+                  <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+                </div>
+              </div>
+              <hr class="border-light m-0">
+
+              <div class="card-body">
+                <div class="form-group">
+                  <label class="form-label">Username</label>
+                  <input type="text" class="form-control mb-1" value="{{user.username}}" name="username">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">E-mail</label>
+                  <input type="text" class="form-control mb-1" value="{{user.email}}" name="email" disabled>
+                  <!-- <div class="alert alert-warning mt-3">
+                    Your email is not confirmed. Please check your inbox.<br>
+                    <a href="javascript:void(0)">Resend confirmation</a>
+                  </div> -->
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Phone Number</label>
+                  <input type="tel" class="form-control" value="{{user.profile.phone}}" name="phone">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Birthday:- {{user.profile.DOB}} </label>
+                  <input type="date" class="form-control" value="{{user.profile.DOB}}" name="dob">
+                </div>
+              </div>
+              <div class="text-right mt-3 mb-3">
+                <button type="submit" class="btn btn-danger">Save changes</button>&nbsp;
+                <button type="reset" class="btn btn-default">Cancel</button>
+              </div>
+            </form>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

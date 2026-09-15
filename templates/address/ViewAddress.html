@@ -1,0 +1,65 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}Address{% endblock title %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="justify-content-center m-5">
+        
+        
+        <h3 class="" >Welcome <span class="text-capitalize">{{request.user}} </span></h3>
+        <div class="col-sm-2 border-end">
+            <ul class="list-unstyled">
+                <li class="d-grid"><a href="{% url "profile" %}" class="btn">Profile</a> </li>
+                <li class="d-grid"><a href="{% url "profile_add_address" %}" class="btn">Add address</a> </li>
+                <li class="d-grid"><a href="{% url "view_address" %}" class="btn btn-primary">Address</a></li>
+                <li class="d-grid"><a href="{% url "change_password" %}" class="btn">New password</a></li>
+            </ul>
+        </div> 
+        
+        <div class="col-sm-8 offset-sm-1">
+        <div class="row">
+            {% if address %}
+            {% for address in address %}
+            
+            <div class="col-lg-4 col-xxl-4 col-12 mb-4 col-sm-4">
+                <!-- form -->
+                <div class="card m-2">
+                    <div class="card-body mb=6 p-6">
+                        
+                        <h5>{{address.type| capfirst}} </h5>
+                    <!-- address -->
+                    <p class="mb-6">
+                        {{address.name| capfirst}}
+                        <br>
+                        {{address.mobile}}
+                        <br>
+                        {{address.locality| capfirst}}
+                        <br>
+                        
+                        {{address.city| capfirst}} , {{address.state}}
+                        <br>
+
+                        {{address.zip_code}}
+                    </p>
+                    <!-- btn -->
+                    <div class="mt-4 mb-3">
+                        <a href="{% url "update_address" pk=address.uid %}" class="text-inherit"> Edit </a>
+                        <a href="{% url "delete_address" pk=address.uid %}" class="text-danger ms-3" data-bs-toggle="modal" data-bs-target="#deleteModal"> Delete </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <h4>There is No Address..!<h4>
+        {% endif %}
+
+        </div>
+        </div>
+        
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

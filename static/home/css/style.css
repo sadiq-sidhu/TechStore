@@ -926,14 +926,20 @@ textarea.input {
 }
 
 .product .product-body .product-price {
+  display: flex; /* Added to control price alignment */
+  align-items: baseline; /* Aligns prices by text baseline */
+  justify-content: center; /* Ensures price block is centered */
+  gap: 3px; /* Tight spacing, matches product_list.html */
   color: #D10024;
   font-size: 18px;
+  margin: 5px 0; /* Added for spacing above/below */
 }
 
 .product .product-body .product-price .product-old-price {
   font-size: 70%;
   font-weight: 400;
   color: #8D99AE;
+  line-height: 1; /* Prevents vertical misalignment */
 }
 
 .product .product-body .product-rating {
@@ -1280,6 +1286,22 @@ textarea.input {
 /*----------------------------*\
 	Store
 \*----------------------------*/
+
+/* variants indicate  */
+.product-label .variants {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #333;
+  color: #fff;
+  padding: 5px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.product-label .variants i {
+  margin-right: 5px;
+}
+
 
 .store-filter {
   margin-bottom: 15px;
@@ -2187,4 +2209,122 @@ textarea.input {
     float: none;
     margin-top: 10px;
   }
+}
+
+
+.product-price-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.product-price-container .product-label {
+  top: 0;
+  right: 0;
+}
+
+.product-price-container .product-label > span.sale {
+  background-color: #FFF;
+  border-color: #D10024;
+  color: #D10024;
+  font-weight: 700;
+}
+
+.product-price {
+  display: inline-block;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-price .save-price {
+  color: #D10024;
+  font-size: 14px;
+  font-weight: 700;
+  margin-left: 10px;
+  text-transform: uppercase;
+}
+
+.product-price .product-old-price {
+  font-size: 70%;
+  font-weight: 400;
+  color: #8D99AE;
+  margin-left: 5px;
+}
+
+.discount-amount {
+  color: #D10024;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-top: 5px;
+}
+
+.discount-breakdown {
+  margin-top: 20px;
+  padding: 15px;
+  background: #E4E7ED;
+  border: 1px solid #E4E7ED;
+  border-radius: 5px;
+}
+
+.discount-breakdown h4 {
+  font-size: 14px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  color: #2B2D42;
+}
+
+.discount-breakdown ul, .discount-breakdown ol {
+  margin-bottom: 15px;
+  padding-left: 20px;
+}
+
+.discount-breakdown li {
+  font-size: 12px;
+  color: #2B2D42;
+  margin-bottom: 5px;
+}
+
+.highest-discount {
+  font-weight: 700;
+  color: #D10024;
+}
+
+.offer-countdown {
+  font-size: 10px;
+  color: #D10024;
+  margin-left: 10px;
+  text-transform: uppercase;
+}
+
+.offer-countdown.expired {
+  color: #8D99AE;
+}
+
+.discount-tooltip {
+  cursor: pointer;
+  color: #8D99AE;
+  margin-left: 5px;
+}
+
+.discount-tooltip:hover {
+  color: #D10024;
+}
+.product-img .product-label>span.sale {
+  background-color: #FFF;
+  border-color: #D10024;
+  color: #D10024;
+}
+
+.product-body .product-price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    color: #D10024;
+}
+
+.product-body .product-price .product-old-price {
+    font-size: 70%;
+    font-weight: 400;
+    color: #8D99AE;
 }

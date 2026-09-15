@@ -1,0 +1,152 @@
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}Orders{% endblock title %}
+{% block main %}
+<section class="content-main">
+    
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order detail</h2>
+            <p>Details for Order ID: {{orders.payment.order_id}}</p>
+        </div>
+    </div>
+    <div class="card">
+        <header class="card-header">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                    <span>
+                        <i class="material-icons md-calendar_today"></i> <b>{{ orders.created_at }} </b>
+                    </span> <br>
+                    <small class="text-muted">Order ID: {{ orders.payment.order_id }}</small>
+                </div>
+                <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+                    <form action="{% url 'change_order_status' orders.uid %}" method="POST">
+                        {% csrf_token %}
+                        <select name="status" class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
+                            <option selected disabled>Change status</option>
+                            {% for value,label in status_choice %}
+                                <option value="{{ value }}">{{label}}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </header> <!-- card-header end// -->
+        <div class="card-body">
+            <div class="row mb-50 mt-20 order-info-wrap">
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-person"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Customer</h6>
+                            <p class="mb-1">
+                                {{orders.user.username}} <br>{{orders.user.email}}
+                            </p>
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-local_shipping"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Order info</h6>
+                            <p class="mb-1">
+                                Shipping to: Fargo express <br> Pay method:{{orders.payment.payment_method}} <br> Status: new
+                            </p>
+                            
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-place"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Deliver to</h6>
+                            <p class="mb-1">
+                                Name: {{orders.address.name}}<br> {{orders.address.mobile}}<br>Place:{{orders.address.city}}, {{orders.address.locality}} <br>{{orders.address.zip_code}},{{orders.address.state}}
+                            </p>
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+            </div> <!-- row // -->
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="40%">Product</th>
+                                    <th width="20%">Unit Price</th>
+                                    <th width="20%">Quantity</th>
+                                    <th width="20%" class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>                                     
+                               {% for item in order_product %}
+                               <tr>
+                                   <td>
+                                       <a class="itemside" href="#">
+                                           <div class="left">
+                                               <img src="{{item.product.thumbnail.url}}" width="40" height="40" class="img-xs" alt="Item">
+                                            </div>
+                                            <div class="info">{{item.product.product_name}}</div>
+                                        </a>
+                                    </td>
+                                    <td> ₹{{item.order_amount}} </td>
+                                    <td> 
+                                        {% if item.quantity == 0 %}
+                                            <span class="badge rounded-pill alert-danger text-danger">Canceled</span>
+                                        {% else %}
+                                            {{item.quantity}}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">₹{{item.item_total}} </td>
+                                </tr>
+                                {% endfor %} 
+                            </tbody>
+                        </table>
+                    </div> <!-- table-responsive// -->
+                </div> <!-- col// -->
+                <div class="col-lg-1"></div>
+                <div class="col-lg-4">
+                    <div class="box shadow-sm bg-light">
+                        <h6 class="mb-15">Payment Details</h6>
+                        <dl class="dlist">
+                            <dt>Subtotal:</dt>
+                            <dd>₹{{orders.payment.amount}} </dd>
+                        </dl>
+                        <dl class="dlist">
+                            <dt>Shipping cost:</dt>
+                            <dd>₹00.00</dd>
+                        </dl>
+                        <dl class="dlist">
+                            <dt>Grand total:</dt>
+                            <dd> <b class="h5">₹{{orders.payment.amount}}</b> </dd>
+                        </dl>
+                        <dl class="dlist">
+                            <dt class="text-muted">Status:</dt>
+                            <dd>
+                                {% if orders.payment.payment_status == "success" %}
+                                <span class="badge rounded-pill alert-success text-success">Payment done</span>
+                                {% elif orders.payment.payment_status == "pending" %}
+                                <span class="badge rounded-pill alert-warning text-warning">Payment pending</span>
+                                {% elif orders.payment.payment_status == "canceled" %}
+                                <span class="badge rounded-pill alert-danger text-danger">Canceled</span>
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                </div> <!-- col// -->
+            </div>
+        </div> <!-- card-body end// -->
+    </div> <!-- card end// -->
+    
+</section> <!-- content-main end// -->
+{% endblock main %}

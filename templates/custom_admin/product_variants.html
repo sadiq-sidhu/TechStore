@@ -1,0 +1,108 @@
+{% extends "custom_admin/admin_base.html" %}
+{% block title %}Manage Variants for {{ product.product_name }}{% endblock %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Manage Variants for {{ product.product_name }}</h2>
+        <div>
+            <a href="{% url 'product_edit' product_id=product.uid %}" class="btn btn-light">Edit Product</a>
+            <a href="{% url 'product_list' %}" class="btn btn-light">Back to Products</a>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Add New Variant</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="add_variant" value="1">
+                {{ variant_form.as_p }}
+                <button type="submit" class="btn btn-primary">Add Variant</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h4>Variant Groups by Appearance</h4>
+            <p class="text-muted">Variants with the same appearance attributes share images</p>
+        </div>
+        <div class="card-body">
+            {% if variant_groups %}
+            {% for group in variant_groups %}
+                <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>Appearance Group</h5>
+                                <div>
+                                    {% for attr in group.attributes %}
+                                        <span class="badge bg-primary me-2">
+                                            {{ attr.attribute_value.attribute.name }}: {{ attr.attribute_value.value }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <form method="post" onsubmit="return confirm('Delete this entire variant group? This will remove all variants with these appearance attributes.');">
+                                {% csrf_token %}
+                                <input type="hidden" name="delete_group" value="1">
+                                <input type="hidden" name="group_hash" value="{{ group.hash }}">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="material-icons md-delete"></i> Delete Group
+                                </button>
+                            </form>
+                        </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Variants in this group ({{ group.variants|length }}):</h6>
+                                <ul class="list-group">
+                                    {% for variant in group.variants %}
+                                        <li class="list-group-item">
+                                            {{ variant.get_variant_name }} - 
+                                            ₹{{ variant.price }} - 
+                                            Stock: {{ variant.stock }}
+                                            <a href="{% url 'variant_edit' variant_id=variant.uid %}" 
+                                               class="btn btn-sm btn-outline-primary float-end">Edit</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Images for this group:</h6>
+                                {% with first_variant=group.variants.0 %}
+                                    {% with images=first_variant.image.all|slice:":4" %}
+                                        {% if images %}
+                                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                                {% for image in images %}
+                                                    <img src="{{ image.image.url }}" 
+                                                         class="img-thumbnail" 
+                                                         style="width: 100px; height: 100px; object-fit: cover;">
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <div class="alert alert-warning">
+                                                No images uploaded for this group
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endwith %}
+                                <a href="{% url 'variant_group_images' product_id=product.uid group_hash=group.hash %}" 
+                                   class="btn btn-primary">
+                                    {% if group.variants.0.image.exists %}Manage{% else %}Add{% endif %} Images
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    No variant groups found. Add variants to see them grouped by appearance.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

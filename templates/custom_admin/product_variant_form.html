@@ -1,0 +1,73 @@
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">{{ title }}</h2>
+    </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <h4>Variant Details</h4>
+                {{ variant_form.as_p }}
+                
+                <h4>Attributes</h4>
+                <label>Attributes</label>
+                <select name="attribute" class="form-control select2 attribute-select" multiple>
+                    {% for attr in attributes %}
+                    <option value="{{ attr.uid }}">{{ attr.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="attribute-values">
+                    {% for form in attribute_forms %}
+                    <div class="attribute-form">
+                        {{ form.attribute.label_tag }}
+                        {{ form.attribute }}
+                        {{ form.attribute_values.label_tag }}
+                        {{ form.attribute_values }}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Save Variant</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% block extra_js %}
+<script src="{% static 'admin/js/vendors/select2.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('.select2').select2();
+    
+    $('.attribute-select').on('change', function() {
+        var $select = $(this);
+        var $valuesContainer = $select.closest('.card-body').find('.attribute-values');
+        $valuesContainer.empty();
+        var selectedAttributes = $select.val() || [];
+        
+        selectedAttributes.forEach(function(attrId) {
+            $.getJSON('{% url "get_attribute_values" %}?attribute_id=' + attrId, function(data) {
+                var $select = $('<select>', {
+                    name: 'attribute_values_' + attrId,
+                    class: 'form-control select2',
+                    multiple: true
+                });
+                data.values.forEach(function(value) {
+                    $select.append($('<option>', {
+                        value: value.uid,
+                        text: value.value
+                    }));
+                });
+                $valuesContainer.append($('<label>').text(data.values[0].attribute__name));
+                $valuesContainer.append($select);
+                $select.select2();
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

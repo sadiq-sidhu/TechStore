@@ -1,0 +1,167 @@
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}Orders{% endblock title %}
+{% block main %}
+    <section class="content-main">
+        <div class="content-header">
+            <h2 class="content-title card-title">User Details of {{user.username}}</h2>
+            
+
+            <p>Complete profile and order history for <strong> {{user.username}} </strong></p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <article class="d-flex align-items-start">
+                            <span class="icon icon-sm rounded-circle bg-primary-light">
+                                <i class="material-icons md-person"></i>
+                            </span>
+                            <div class="text ms-3">
+                                <h6 class="mb-1">Profile Information</h6>
+                                <img src="{% if user.profile.profile_image %}{{user.profile.profile_image.url}}{% endif %}" class="img-md rounded-circle mb-2" alt="User Profile">
+                                <p>
+                                    <strong>Username:</strong>{{user.username}} <br>
+                                    <strong>Email:</strong>{{user.email}} <br>
+                                    <strong>Joined:</strong> {{user.profile.created_at|date:'M.d,Y'}}
+                                </p>
+                            </div>
+                        </article>
+
+                    </div>
+
+                    <div class="col-md-6">
+                        <article class="d-flex align-items-start">
+                            <span class="icon icon-sm rounded-circle bg-info-light">
+                                <i class="material-icons md-location_on"></i>
+                            </span>
+                            <div class="text ms-3">
+                                <h6 class="mb-1">Saved Addresses</h6>
+                                {% if user.address_set.all %}
+                                {% for address in user.address_set.all %}
+                                <p><strong>{{address.type|capfirst}} Address:</strong>{{address.name|capfirst}} ,{{address.locality|capfirst}},{{address.city|capfirst}},{{address.state|capfirst}},{{address.zip_code}},{{address.mobile}}</p>
+                                
+                                {% endfor %}
+                                {% else %}
+                                <p>There is No address.</p>
+                                {% endif %}
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    
+                    <div class="col-md-6">
+                        <article class="d-flex align-items-start">
+                            <span class="icon icon-sm rounded-circle bg-info-light">
+                                <i class="material-icons md-history"></i>
+                            </span>
+                            <div class="text ms-3">
+                                <h6 class="mb-1">Recent Activity</h6>
+                                <ul>
+                                    <li>Last login: {{user.last_login|date:"M.d,Y"}} Or {{user.last_login|timesince}} ago.</li>
+                                    {% if last_order_date %}
+                                    <li>Last order: {{last_order_date|date:'M.d,Y'}}</li>
+                                    {% else %}
+                                    <li>Last order: No orders yet.</li>
+                                    {% endif %}
+                                    
+                                </ul>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="col-md-6">
+                        <article class="d-flex align-items-start">
+                            <span class="icon icon-sm rounded-circle bg-success-light">
+                                <i class="material-icons md-account_balance_wallet"></i>
+                            </span>
+                            <div class="text ms-3">
+                                <h6 class="mb-1">Wallet & Statistics</h6>
+                                <p><strong>Wallet Balance:</strong>₹ {{wallet_balance}} </p>
+                                <p>Total spent: ₹ {{total_spend}}</p>
+                                <span class="badge bg-primary">Total Orders: {{total_orders}}</span>
+                                <span class="badge bg-success">Completed: {{completed_order}}</span>
+                                <span class="badge bg-danger">Canceled: {{canceld_order}}</span>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <header class="card-header">
+                        <div class="row gx-3 align-items-center">
+                            <div class="col-md-4">
+                                <input type="text" name='order_id' placeholder="Search Order ID" class="form-control" value="{{search_id}}">
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" name='status'>
+                                    <option>All Statuses</option>
+                                    {% for value,display_label in status_choices.items %}
+                                        <option value={{value}} {% if search_status == value %}selected{% endif %}>{{display_label}}</option>  
+                                         
+                                    {% endfor %}
+                                    
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="date" name="date" value="search_date" class="form-control">
+                            </div>
+                            <div class="col-md-2 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                                {% if search_id or search_date or search_status %}
+                                <a href="{% url 'user_details' user.pk %}" class="btn btn-outline-secondary btn-sm">Reset</a>
+                                {% endif %}
+                            </div>                            
+                        </div>
+                    </header>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <!--<th>Action</th>-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                {% for item in order.orderproduct_set.all %}
+                                <tr>
+                                    <td>{{item.uid}}</td>
+                                    <td>{{item.created_at|date:'M d,y'}}</td>
+                                    {% if item.status == 'success' %}
+                                        <td><span class="badge bg-success">{{ item.get_status_display }}</span></td>
+                                    {% elif item.status == 'pending' %}
+                                        <td><span class="badge bg-warning">{{ item.get_status_display }}</span></td>
+                                    {% elif item.status == 'packed' %}
+                                        <td><span class="badge bg-info">{{ item.get_status_display }}</span></td>
+                                    {% elif item.status == 'on the way' %}
+                                        <td><span class="badge bg-primary">{{ item.get_status_display }}</span></td>
+                                    {% elif item.status == 'canceled' %}
+                                        <td><span class="badge bg-danger">{{ item.get_status_display }}</span></td>
+                                    {% else %}
+                                        <td><span class="badge bg-secondary">{{ item.get_status_display }}</span></td>
+                                    {% endif %}
+                                    <td>{{item.quantity}}</td>
+                                    <td>{{item.item_total}}</td>
+                                    <!-- <td><button class="btn btn-sm btn-primary">View</button></td> -->
+                                </tr>
+                                {% endfor %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No orders found.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock main %}

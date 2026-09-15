@@ -1,0 +1,167 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}Cart{% endblock title %}
+{% block heading %}Your Cart{% endblock heading %}
+{% block main_content %}
+<style>
+    button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    .messages {
+        margin-bottom: 20px;
+        position: sticky;
+        top: 10px;
+        z-index: 1000;
+    }
+    .messages .alert {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        position: relative;
+    }
+    .messages .alert-success {
+        background-color: #dff0d8;
+        color: #3c763d;
+    }
+    .messages .alert-error {
+        background-color: #f2dede;
+        color: #a94442;
+    }
+    .messages .alert .close {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        border: none;
+        background: none;
+        padding: 0;
+    }
+</style>
+<div class="section">
+    <div class="container">
+        <div class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" data-auto-close="4000">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                {% if cart %}
+                <div class="card mb-4">
+                    <div class="card-header py-3">
+                        <h5 class="mb-0">Cart - {{count}} items</h5>
+                    </div>
+                    {% for item in cart %}
+                    <div class="card-body">
+                        <div class="row cart-item">
+                            <div class="col-md-3">
+                                <img src="{{item.product.thumbnail.url}}" alt="{{item.product.product_name}}" style="width: 100%; max-width: 100px; object-fit: contain;">
+                            </div>
+                            <div class="col-md-5">
+                                <p><strong>{{item.product.product_name}}</strong></p>
+                                <p>Brand: {{item.product.brand.brand_name}}</p>
+                                <button class="remove-cart" pid="{{item.product.uid}}" style="padding: 5px 10px; background-color: #ef233c; border: none; color: #FFF; border-radius: 20px; font-size: 12px; text-transform: uppercase; margin-right: 10px;">
+                                    <i class="fa fa-trash"></i> Remove
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-number" style="max-width: 150px; margin-bottom: 10px; position: relative;">
+                                    <span class="minus-cart" pid="{{item.product.uid}}" style="position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; border: 1px solid #E4E7ED; background-color: #FFF; text-align: center; font-weight: 700; cursor: pointer;">-</span>
+                                    <input type="number" value="{{item.quantity}}" min="1" readonly style="height: 40px; padding: 0 35px 0 15px; border: 1px solid #E4E7ED; background-color: #FFF; width: 100%; text-align: center;">
+                                    <span class="plus-cart" pid="{{item.product.uid}}" style="position: absolute; right: 0; top: 0; width: 20px; height: 20px; border: 1px solid #E4E7ED; background-color: #FFF; text-align: center; font-weight: 700; cursor: pointer;">+</span>
+                                </div>
+                                <p><strong>₹{{item.product.get_selling_price}}</strong></p>
+                            </div>
+                        </div>
+                        <hr style="margin: 20px 0;">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>Your cart is empty.</p>
+                <a href="{% url 'home' %}" style="color: #D10024; text-transform: uppercase; font-weight: 500;"><i class="fa fa-long-arrow-left me-2"></i>Back to Shop</a>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                {% if cart %}
+                <div class="card mb-4">
+                    <div class="card-header py-3">
+                        <h5 class="mb-0">Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul id="summary-list" style="list-style: none; padding: 0;">
+                            {% for item in cart %}
+                            <li style="display: flex; justify-content: space-between; padding: 10px 0;">
+                                <span>{{ item.product.product_name }} ({{ item.quantity }} units)</span>
+                                <span>₹{{ item.subtotal|floatformat:2 }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0;">
+                            <span>Products</span>
+                            <span id="amount">₹{{amount|floatformat:2}}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0;">
+                            <span>Shipping</span>
+                            <span>Gratis</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #E4E7ED;">
+                            <strong>Total</strong>
+                            <span id="total"><strong>₹{{total|floatformat:2}}</strong></span>
+                        </div>
+                        <a href="{% url 'checkout_page' %}" style="display: block; padding: 12px 30px; background-color: #D10024; border: none; border-radius: 40px; color: #FFF; text-transform: uppercase; font-weight: 700; text-align: center; transition: opacity 0.2s;">Go to Checkout</a>
+                    </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <p><strong>We accept</strong></p>
+                        <img src="https://mdbcdn.b-cdn.net/wp-content/plugins/woocommerce-gateway-stripe/assets/images/visa.svg" alt="Visa Card" style="width: 45px; margin-right: 5px;" title="Debit/Credit Cards">
+                        <img src="https://mdbcdn.b-cdn.net/wp-content/plugins/woocommerce-gateway-stripe/assets/images/mastercard.svg" alt="Mastercard" style="width: 45px; margin-right: 5px;" title="Debit/Credit Cards">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/UPI_Logo_vector.svg/800px-UPI_Logo_vector.svg.png" alt="UPI" style="width: 45px; margin-right: 5px;" title="UPI">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1433/1433671.png" alt="Cash on Delivery" style="width: 45px; margin-right: 5px;" title="Cash on Delivery">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2331/2331970.png" alt="Wallet" style="width: 45px; margin-right: 5px;" title="Wallet">
+                    </div>
+                </div>
+                {% endif %}
+                <a href="{% url 'home' %}" style="color: #D10024; text-transform: uppercase; font-weight: 500;"><i class="fa fa-long-arrow-left me-2"></i>Back to Shop</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
+{% block js %}
+<script src="{% static 'cart/js/mycart.js' %}"></script>
+<script>
+    // Auto-close Django messages after 4 seconds
+    $(document).ready(function() {
+        $('.messages .alert').each(function() {
+            var $alert = $(this);
+            var timeout = parseInt($alert.data('auto-close')) || 4000;
+            setTimeout(function() {
+                $alert.fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, timeout);
+        });
+
+        // Close button functionality
+        $('.messages .close').on('click', function() {
+            $(this).parent().remove();
+        });
+
+        console.log('Amount element:', document.getElementById('amount'));
+        console.log('Total element:', document.getElementById('total'));
+        console.log('Quantity inputs:', document.querySelectorAll('.input-number input').length);
+        window.homeUrl = "{% url 'home' %}";
+    });
+</script>
+{% endblock js %}

@@ -1,0 +1,281 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}wallet{% endblock title %}
+{% block heading %}Wallet{% endblock heading %}
+{% block style %}
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .wallet-container {
+            padding: 2rem;
+        }
+        .wallet-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .balance-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .balance {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .add-money-section {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .add-money-form {
+            width: 100%;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .add-money-form button {
+            background-color: #d9534f;
+            color: #fff;
+            border: none;
+        }
+        .add-money-form button:hover {
+            background-color: #c9302c;
+        }
+        .transaction-history {
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .transaction-history h4 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .transaction {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .transaction:last-child {
+            border-bottom: none;
+        }
+        .credit {
+            color: green;
+        }
+        .debit {
+            color: red;
+        }
+        .refund {
+            color: blue;
+        }        
+        
+    </style>
+{% endblock style %}
+{% block main_content %}
+    <div class="container wallet-container">
+        <!-- Wallet Header -->
+        <div class="wallet-header">
+            <div class="balance-section">
+                <div class="balance">Wallet Balance: <span>&#8377;{{ wallet.balance }}</span></div>
+            </div>
+            <div class="add-money-section">
+                <form id='addMoneyForm'class="add-money-form" action="{% url "add_money" %}" method="POST">
+                    {% csrf_token %}
+                    {{ form.amount }}
+                    <button type="submit" class="btn">Add Money</button>
+                    <div id='feedbackMessage' style='display:none; margin-tp:10px font-weight:bold'></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Money Details -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Add Money via Razorpay</h5>
+                <p>You can securely add money to your wallet using Razorpay. Enter the amount above and proceed to payment.</p>
+            </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="transaction-history">
+            <h4>Transaction History</h4>
+            {% if transactions %}
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{transaction.created_at}}</td>
+                        {% if transaction.transaction_type == 'DEBIT' %}
+                        <td class="debit">{{ transaction.get_transaction_type_display }}</td>
+                        {% elif transaction.transaction_type == 'CREDIT' %}
+                        <td class="credit">{{ transaction.get_transaction_type_display }}</td>
+                        {% elif transaction.transaction_type == 'REFUND' %}
+                        <td class="refund">{{ transaction.get_transaction_type_display }}</td>
+                        {% endif %}
+                        <td>&#8377; {{transaction.amount}}</td>
+                        <td>{{transaction.description}}</td>
+                    </tr>
+                    {% endfor %}
+                    
+                    <!--<tr>
+                        <td>2023-06-10 11:20:00</td>
+                        <td class="refund">refund</td>
+                        <td>&#8377; 2000.00</td>
+                        <td>Added money via Razorpay</td>
+                    </tr>-->
+                </tbody>
+            </table>
+            {% else %}
+            <h5>ㅤㅤNo transactions yet.</h5>
+            {% endif %}
+        </div>
+    </div>
+{% endblock main_content %}
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const feedbackDiv = document.querySelector('#feedbackMessage'); // Div to display feedback messages
+        const walletBalanceElement = document.querySelector('#walletBalance'); // Element showing wallet balance
+        const addMoneyForm = document.querySelector('#addMoneyForm'); // The form for adding money
+    
+        // Event listener for form submission
+        addMoneyForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+            const formData = new FormData(addMoneyForm);
+            const amount = formData.get('amount');
+    
+            if (!amount || parseFloat(amount) <= 0) {
+                feedbackDiv.textContent = 'Please enter a valid amount!';
+                feedbackDiv.style.color = 'red';
+                feedbackDiv.style.display = 'block';
+                return;
+            }
+    
+            fetch("{% url 'add_money' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: formData,
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.payment_response && data.razorpay_merchant_key) {
+                    const options = {
+                        key: data.razorpay_merchant_key,
+                        amount: data.payment_response.amount,
+                        currency: "INR",
+                        name: "TechStore",
+                        description: "Add Money to Wallet",
+                        order_id: data.payment_response.id,
+                        handler: function (response) {
+                            // Successful payment handler
+                            fetch("{% url 'payment_callback' %}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': '{{ csrf_token }}',
+                                },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                }),
+                            })
+                            .then(res => res.json())
+                            .then(result => {
+                                if (result.success) {
+                                    // Show success message
+                                    feedbackDiv.textContent = 'Payment successful! Redirecting to update wallet...';
+                                    feedbackDiv.style.color = 'green';
+                                    feedbackDiv.style.display = 'block';
+    
+                                    // Hold payment window for 10 seconds
+                                    setTimeout(() => {
+                                        // Redirect to wallet page to reload balance
+                                        window.location.reload();
+                                    }, 3000); // 10-second delay
+                                } else {
+                                    feedbackDiv.textContent = 'Payment successful, but wallet update failed.';
+                                    feedbackDiv.style.color = 'red';
+                                    feedbackDiv.style.display = 'block';
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Error in payment callback:', err);
+                                feedbackDiv.textContent = 'An error occurred while processing payment.';
+                                feedbackDiv.style.color = 'red';
+                                feedbackDiv.style.display = 'block';
+                            });
+                        },
+                        modal: {
+                            ondismiss: function () {
+                                // If the user manually closes the Razorpay modal
+                                feedbackDiv.textContent = 'Payment canceled!';
+                                feedbackDiv.style.color = 'red';
+                                feedbackDiv.style.display = 'block';
+                            },
+                        },
+                        prefill: {
+                            name: "{{ request.user.username }}",
+                            email: "{{ request.user.email }}",
+                        },
+                        theme: {
+                            color: "#3399cc",
+                        },
+                    };
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                } else if (data.error) {
+                    feedbackDiv.textContent = data.error;
+                    feedbackDiv.style.color = 'red';
+                    feedbackDiv.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error('Error initiating payment:', err);
+                feedbackDiv.textContent = 'An error occurred while initiating payment.';
+                feedbackDiv.style.color = 'red';
+                feedbackDiv.style.display = 'block';
+            });
+        });
+    });
+    
+    
+</script>
+{% endblock js %}
+

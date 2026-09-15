@@ -1,0 +1,61 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}Wishlist{% endblock title %}
+{% block heading %}Wishlist{% endblock heading %}
+{% block main_content %}
+<style>
+.minus-wishlist:hover, .add-to-cart-btn:hover {
+    background-color: #FFF !important;
+    color: #D10024 !important;
+    border-color: #D10024 !important;
+    padding: 0 30px 0 50px !important;
+}
+.minus-wishlist:hover i, .add-to-cart-btn:hover i {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+</style>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            {% for item in wishlist %}
+            <!-- product -->
+            <div class="col-md-4 col-xs-6">
+                <div class="product">
+                    <div class="product-img">
+                        <img src="{{item.product.thumbnail.url}}" alt="{{item.product.product_name}}">                     
+                    </div>
+                    <div class="product-body">
+                        <p class="product-category">{{item.product.brand.brand_name}}</p>
+                        <h3 class="product-name"><a href="{% url 'get_product' item.product.product_slug %}">{{item.product.product_name}}</a></h3>                    
+                        <h4 class="product-price">₹{{item.product.get_selling_price}} <del class="product-old-price">₹{{item.product.price}}</del></h4>                        
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #FFF; position: relative; z-index: 20; display: flex; justify-content: center; align-items: center; clear: both; flex-wrap: wrap; gap: 10px;">
+                        <button class="minus-wishlist" pid="{{item.product.uid}}" style="height: 40px; padding: 0 20px; background-color: #ef233c; border: 2px solid transparent; color: #FFF; font-weight: 700; text-transform: uppercase; border-radius: 40px; transition: all 0.2s; position: relative; display: inline-block; line-height: 36px; cursor: pointer; margin: 0 5px;">
+                            <i class="fa fa-trash" style="position: absolute; left: 0; top: 0; width: 40px; height: 40px; line-height: 38px; color: #D10024; opacity: 0; visibility: hidden; transition: all 0.2s;"></i>
+                            Remove
+                        </button>
+                        <form action="{% url 'add_cart' %}" method="GET">
+                            <input type="hidden" name="prod_uid" value="{{item.product.uid}}">
+                            <button type="submit" class="add-to-cart-btn" style="height: 40px; padding: 0 20px; background-color: #D10024; border: 2px solid transparent; color: #FFF; font-weight: 700; text-transform: uppercase; border-radius: 40px; transition: all 0.2s; position: relative; display: inline-block; line-height: 36px; cursor: pointer; margin: 0 5px;">
+                                <i class="fa fa-shopping-cart" style="position: absolute; left: 0; top: 0; width: 40px; height: 40px; line-height: 38px; color: #FFF; opacity: 0; visibility: hidden; transition: all 0.2s;"></i>
+                                Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- /product -->
+            {% empty %}
+            <div class="col-md-12">
+                <h4>No products in wishlist.</h4>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
+{% block js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="{% static 'cart/js/mywishlist.js' %}"></script>
+{% endblock js %}

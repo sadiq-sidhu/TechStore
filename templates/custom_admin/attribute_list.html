@@ -1,0 +1,53 @@
+<!-- templates/custom_admin/attribute_list.html -->
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}Attributes{% endblock %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Attributes</h2>
+        <div>
+            <a href="{% url 'attribute_add' %}" class="btn btn-primary btn-sm rounded">Add Attribute</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Affects Image</th>
+                        <th>Values</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attribute in attributes %}
+                    <tr>
+                        <td>{{ attribute.name }}</td>
+                        <td>{{ attribute.affects_image|yesno:"Yes,No" }}</td>
+                        <td>
+                            {% for value in attribute.values.all %}
+                                {{ value.value }} 
+                                (<a href="{% url 'attribute_value_edit' attribute_value_id=value.uid %}">Edit</a>)
+                                {% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                No values
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <a href="{% url 'attribute_edit' attribute_id=attribute.uid %}" class="btn btn-sm btn-brand">Edit</a>
+                            <a href="{% url 'attribute_value_add' attribute_id=attribute.uid %}" class="btn btn-sm btn-primary">Add Value</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">No attributes found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}Orders{% endblock title %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order List </h2>
+            <p>Lorem ipsum dolor sit amet.</p>
+        </div>
+        <div>
+            <input type="text" placeholder="Search order ID" class="form-control bg-white">
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="form-control">
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>Status</option>
+                        <option>Active</option>
+                        <option>Disabled</option>
+                        <option>Show all</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>Show 20</option>
+                        <option>Show 30</option>
+                        <option>Show 40</option>
+                    </select>
+                </div>
+            </div>
+        </header> <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Payment method</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date</th>
+                            <th scope="col" class="text-end"> Action </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in orders %}
+                        <tr {% if item.is_fully_canceled %}class='table-danger rounded-lg border-0 mb-2'{% endif %}>
+                            <td>{{forloop.counter}}</td>
+                            <td><b>{{item.user.username}}</b></td>
+                            <td>
+                                {% if item.payment.payment_method == 'Razorpay' %}
+                                <span class="badge rounded-pill alert-primary">RAZORPAY</span>
+                                {% elif item.payment.payment_method == 'COD' %}
+                                <span class="badge rounded-lg alert-dark">COD</span>
+                                {% endif %}
+                            </td>
+                            <td>₹ {{item.payment.amount}} /</td>
+                            <td>
+                                {% if item.status %}
+                                    {% if item.status == 'pending' %}
+                                        <span class="badge rounded-pill alert-warning">Pending</span>
+                                    {% elif item.status == 'canceled' %}
+                                        <span class="badge rounded-pill alert-danger">Canceled</span>
+                                    {% elif item.status == 'received' %}
+                                        <span class="badge rounded-pill alert-success">Received</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge rounded-pill alert-secondary">No status</span>
+                                {% endif %}
+                            </td>
+                            <td>{{item.created_at|date:"d/m/y"}} </td>
+                            <td class="text-end">
+                                <a href="{% url "order_details" item.pk %}" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div> <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        {% endfor %}
+                       
+                    </tbody>
+                </table>
+            </div> <!-- table-responsive //end -->
+        </div> <!-- card-body end// -->
+    </div> <!-- card end// -->
+    <!-- <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                <li class="page-item"><a class="page-link" href="#">02</a></li>
+                <li class="page-item"><a class="page-link" href="#">03</a></li>
+                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                <li class="page-item"><a class="page-link" href="#">16</a></li>
+                <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
+            </ul>
+        </nav>
+    </div> -->
+</section> <!-- content-main end// -->
+{% endblock main %}

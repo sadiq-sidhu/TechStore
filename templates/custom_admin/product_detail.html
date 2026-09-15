@@ -1,0 +1,49 @@
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}Product Details{% endblock %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Product: {{ product.product_name }}</h2>
+        <div>
+            <a href="{% url 'product_edit' product_id=product.uid %}" class="btn btn-primary">Edit Product</a>
+            <a href="{% url 'product_delete' product_id=product.uid %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to soft delete this product?')">Delete Product</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <p><strong>Category:</strong> {{ product.category }}</p>
+            <p><strong>Brand:</strong> {{ product.brand }}</p>
+            <p><strong>Description:</strong> {{ product.description }}</p>
+            <p><strong>Price Range:</strong> {{ product.get_price_range }}</p>
+            <p><strong>Image Count:</strong> {{ image_count }} {% if image_count < 4 %}(Minimum 4 recommended){% endif %}</p>
+            
+            <h4>Variants</h4>
+            <a href="{% url 'product_variant_add' product_id=product.uid %}" class="btn btn-primary mb-3">Add Variant</a>
+            {% for variant in variants %}
+            <div class="mb-3">
+                <p><strong>{{ variant.get_variant_name }}</strong> (Stock: {{ variant.stock }}, Price: ₹{{ variant.price }})</p>
+                <a href="{% url 'product_variant_edit' variant_id=variant.uid %}" class="btn btn-sm btn-primary">Edit</a>
+                <a href="{% url 'product_variant_delete' variant_id=variant.uid %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to soft delete this variant?')">Delete</a>
+            </div>
+            {% empty %}
+            <p>No variants available.</p>
+            {% endfor %}
+            
+            <h4>Images</h4>
+            <a href="{% url 'product_image_add' product_id=product.uid %}" class="btn btn-primary mb-3">Add Image</a>
+            <div class="row">
+                {% for image in images %}
+                <div class="col-md-3">
+                    <img src="{{ image.image.url }}" alt="Product Image" style="width: 100%; height: auto;">
+                    <p>{% if image.is_default %}Default{% endif %}</p>
+                    <a href="{% url 'product_image_delete' image_id=image.uid %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this image?')">Delete</a>
+                </div>
+                {% empty %}
+                <p>No images available.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

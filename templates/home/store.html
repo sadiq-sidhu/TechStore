@@ -1,0 +1,185 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block main_content %}
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <!-- ASIDE -->
+            <div id="aside" class="col-md-3">
+                <!-- aside Widget -->
+                <div class="aside">
+                    <h3 class="aside-title">Price</h3>
+                
+                    <div class="price-filter">
+                        <div id="price-slider"></div>
+                        <div class="input-number price-min">
+                            <input id="price-min" type="number" value="{{ min_price|floatformat:2 }}">
+                            <span class="qty-up">+</span>
+                            <span class="qty-down">-</span>
+                        </div>
+                        <span>-</span>
+                        <div class="input-number price-max">
+                            <input id="price-max" type="number" value="{{ max_price|floatformat:2 }}">
+                            <span class="qty-up">+</span>
+                            <span class="qty-down">-</span>
+                        </div>
+                    </div>
+                    {% if not price_range.min_price or not price_range.max_price %}
+                   
+                    {% endif %}
+                </div>
+                <!-- /aside Widget -->
+
+                <!-- aside Widget -->
+                <div class="aside">
+                    <h3 class="aside-title">Brand</h3>
+                    
+                    <div class="checkbox-filter">
+                        {% if brands %}
+                        {% for brand_item in brands %}
+                        <div class="input-checkbox">
+                            <input type="checkbox" id="brand-{{ brand_item.brand.uid }}" name="brand" value="{{ brand_item.brand.brand_name }}" {% if brand_item.brand.brand_name in selected_brands %}checked{% endif %} onchange="applyFilters()">
+                            <label for="brand-{{ brand_item.brand.uid }}">
+                                <span></span>
+                                {{ brand_item.brand.brand_name }}
+                                <small>({{ brand_item.product_count }})</small>
+                            </label>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- /aside Widget -->
+
+                <!-- Attribute Filters -->
+                <div class="aside">
+                    <h3 class="aside-title">Attributes</h3>
+                    
+                    <div class="checkbox-filter">
+                        {% if attributes %}
+                        {% for attr_item in attributes %}
+                        <div class="attribute-group">
+                            <h4>{{ attr_item.attribute.name }}</h4>
+                            {% if attr_item.values %}
+                            {% for val in attr_item.values %}
+                            <div class="input-checkbox">
+                                <input type="checkbox" id="attr-{{ attr_item.attribute.uid }}-{{ val.value.uid }}-{{ forloop.counter }}" name="attr_{{ attr_item.attribute.uid }}" value="{{ val.value.value }}" {% for sel_attr in selected_attributes %}{% if sel_attr.uid == attr_item.attribute.uid and val.value.value in sel_attr.values %}checked{% endif %}{% endfor %} onchange="applyFilters()">
+                                <label for="attr-{{ attr_item.attribute.uid }}-{{ val.value.uid }}-{{ forloop.counter }}">
+                                    <span></span>
+                                    {{ val.value.value }}
+                                    <small>({{ val.product_count }})</small>
+                                </label>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                        
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- /Attribute Filters -->
+            </div>
+            <!-- /ASIDE -->
+
+            <!-- STORE -->
+            <div id="store" class="col-md-9">
+                <!-- store top filter -->
+                <div class="store-filter clearfix">
+                    
+                    <div class="store-sort">
+                        <label>
+                            Sort By:
+                            <select class="input-select" id="sort" onchange="applyFilters()">
+                                <option value="default" {% if sort == 'default' %}selected{% endif %}>Default</option>
+                                <option value="low_to_high" {% if sort == 'low_to_high' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="high_to_low" {% if sort == 'high_to_low' %}selected{% endif %}>Price: High to Low</option>
+                            </select>
+                        </label>
+                    </div>
+                    <ul class="store-grid">
+                        <li class="active"><i class="fa fa-th"></i></li>
+                        <li><a href="#"><i class="fa fa-th-list"></i></a></li>
+                    </ul>
+                </div>
+                <!-- /store top filter -->
+
+                <!-- store products -->
+                <div class="row" id="product-list">
+                    
+                    {% if products %}
+                    {% include 'home/product_list.html' %}
+                    {% else %}
+                    
+                    {% endif %}
+                </div>
+                <!-- /store products -->
+
+                <!-- store bottom filter -->
+                <div class="store-filter clearfix">
+                    <span class="store-qty">Showing {{ product_count }} products</span>
+                </div>
+                <!-- /store bottom filter -->
+            </div>
+            <!-- /STORE -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+{% endblock main_content %}
+
+{% block js %}
+<script src="{% static 'home/js/filter.js' %}"></script>
+<script>
+    var priceSlider = document.getElementById('price-slider');
+    var priceMin = document.getElementById('price-min');
+    var priceMax = document.getElementById('price-max');
+    if (priceSlider && typeof noUiSlider !== 'undefined') {
+        noUiSlider.create(priceSlider, {
+            start: [{{ min_price|floatformat:2 }}, {{ max_price|floatformat:2 }}],
+            connect: true,
+            step: 1,
+            range: {
+                'min': {{ price_range.min_price|floatformat:2 }},
+                'max': {{ price_range.max_price|floatformat:2 }}
+            }
+        });
+        priceSlider.noUiSlider.on('update', function (values, handle) {
+            console.log('Price slider updated:', values);
+            var value = values[handle];
+            if (handle) {
+                priceMax.value = Math.round(value);
+            } else {
+                priceMin.value = Math.round(value);
+            }
+        });
+        priceSlider.noUiSlider.on('change', function (values) {
+            console.log('Price slider change:', values);
+            applyFilters();
+        });
+        priceMin.addEventListener('change', function () {
+            console.log('Price min input changed:', this.value);
+            priceSlider.noUiSlider.set([this.value, null]);
+            applyFilters();
+        });
+        priceMax.addEventListener('change', function () {
+            console.log('Price max input changed:', this.value);
+            priceSlider.noUiSlider.set([null, this.value]);
+            applyFilters();
+        });
+    } else {
+        console.error('noUiSlider not available or price-slider element missing');
+    }
+</script>
+{% endblock %}

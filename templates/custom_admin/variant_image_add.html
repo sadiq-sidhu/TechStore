@@ -1,0 +1,62 @@
+{% extends "custom_admin/admin_base.html" %}
+{% block title %}Add Image - {{ variant.get_variant_name }}{% endblock %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Add Image for {{ variant.get_variant_name }}</h2>
+        <div>
+            <a href="{% url 'variant_image_manage' variant_id=variant.uid %}" class="btn btn-light">Back to Images</a>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    {% for field in form %}
+                        {% if 'attr_' not in field.name %}
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {% if attribute_data %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Image Applies To</h5>
+                            <p class="text-muted">Select which attribute values this image represents</p>
+                        </div>
+                        <div class="card-body">
+                            {% for attr in attribute_data %}
+                                <div class="form-check form-switch mb-3">
+                                    <input type="checkbox" 
+                                           name="attr_{{ attr.id }}" 
+                                           id="id_attr_{{ attr.id }}" 
+                                           class="form-check-input"
+                                           {% if attr.checked %}checked{% endif %}>
+                                    <label class="form-check-label" for="id_attr_{{ attr.id }}">
+                                        {{ attr.name }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <button type="submit" class="btn btn-primary">Upload Image</button>
+                <a href="{% url 'variant_image_manage' variant_id=variant.uid %}" class="btn btn-light">Cancel</a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

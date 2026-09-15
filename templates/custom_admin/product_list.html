@@ -1,0 +1,117 @@
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}Products{% endblock title %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Products Grid</h2>
+            <p>All products</p>
+        </div>
+        <div>
+            <a href="{% url 'product_add' %}" class="btn btn-primary btn-sm rounded">Create New</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <form method="get" class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" name="search" placeholder="Search..." class="form-control" value="{{ request.GET.search }}">
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select" name="category">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.category_name }}" {% if request.GET.category == category.category_name %}selected{% endif %}>{{ category.category_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select" name="sort">
+                        <option value="latest" {% if request.GET.sort == 'latest' %}selected{% endif %}>Latest Added</option>
+                        <option value="cheap" {% if request.GET.sort == 'cheap' %}selected{% endif %}>Cheapest First</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                </div>
+            </form>
+        </header>
+        <div class="card-body">
+            <div class="row gx-3 row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                {% for product in data %}
+                <div class="col mb-4">
+                    <div class="card card-product-grid h-100">
+                        <div class="img-wrap" style="height: 180px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                            {% if product.default_image %}
+                            <img src="{{ product.default_image.0.image.url }}" alt="{{ product.product_name }}" 
+                                 style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center" style="height: 100%;">
+                                <i class="material-icons md-image" style="font-size: 3rem; color: #ddd;"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="info-wrap p-3">
+                            <h6 class="title text-truncate mb-1">
+                                <a href="{% url 'product_edit' product_id=product.uid %}" class="text-dark">{{ product.product_name }}</a>
+                            </h6>
+                            <div class="price mb-2">
+                                <strong>{{ product.get_price_range }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted d-block">
+                                    <i class="material-icons md-inventory" style="font-size: 1rem;"></i> 
+                                    {{ product.active_variants|length }} variants
+                                </small>
+                                <small class="text-muted">
+                                    <i class="material-icons md-image" style="font-size: 1rem;"></i> 
+                                    {{ product.get_image_count }} images
+                                </small>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <a href="{% url 'product_edit' product_id=product.uid %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="material-icons md-edit" style="font-size: 1rem;"></i>
+                                </a>
+                                <form method="post" action="{% url 'product_delete' product_id=product.uid %}" 
+                                      onsubmit="return confirm('Are you sure you want to delete this product? This will also delete all its variants and images.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="material-icons md-delete_outline" style="font-size: 1rem;"></i>
+                                    </button>
+                                </form>
+                                <a href="{% url 'product_manage_variants' product_id=product.uid %}" 
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="material-icons md-format_list_bulleted" style="font-size: 1rem;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">No products found.</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Pagination remains the same -->
+    <div class="pagination-area mt-30 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                {% if data.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ data.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"><i class="material-icons md-chevron_left"></i></a></li>
+                {% endif %}
+                {% for num in data.paginator.page_range %}
+                <li class="page-item {% if data.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ num }}</a></li>
+                {% endfor %}
+                {% if data.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ data.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"><i class="material-icons md-chevron_right"></i></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</section>
+{% endblock main %}

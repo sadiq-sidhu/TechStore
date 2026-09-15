@@ -1,0 +1,141 @@
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}Coupon manipulation{% endblock title %}
+{% block active %}{% endblock active %}
+{% block main %}
+
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">{% if coupon %}Edit Coupon{% else %}Add New Coupon{% endif %}</h2>
+    </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="post" class="form-vertical">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-8 mx-auto">
+                        <!-- Coupon Code -->
+                        <div class="mb-4">
+                            <label for="{{ form.code.id_for_label }}" class="form-label fw-bold">
+                                Coupon Code:
+                            </label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                            <div class="invalid-feedback d-block">{{ form.code.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Discount Amount -->
+                        <div class="mb-4">
+                            <label for="{{ form.discount_amount.id_for_label }}" class="form-label fw-bold">
+                                Discount Amount:
+                            </label>
+                            {{ form.discount_amount }}
+                            {% if form.discount_amount.errors %}
+                            <div class="invalid-feedback d-block">{{ form.discount_amount.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Minimum Purchase Amount -->
+                        <div class="mb-4">
+                            <label for="{{ form.min_purchase_amount.id_for_label }}" class="form-label fw-bold">
+                                Minimum Purchase Amount:
+                            </label>
+                            {{ form.min_purchase_amount }}
+                            {% if form.min_purchase_amount.errors %}
+                            <div class="invalid-feedback d-block">{{ form.min_purchase_amount.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Coupon Type -->
+                        <div class="mb-4">
+                            <label for="{{ form.coupon_type.id_for_label }}" class="form-label fw-bold">
+                                Coupon Type:
+                            </label>
+                            {{ form.coupon_type }}
+                            {% if form.coupon_type.errors %}
+                            <div class="invalid-feedback d-block">{{ form.coupon_type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Valid From -->
+                        <div class="mb-4">
+                            <label for="{{ form.valid_from.id_for_label }}" class="form-label fw-bold">
+                                Valid From:
+                            </label>
+                            {{ form.valid_from }}
+                            {% if form.valid_from.errors %}
+                            <div class="invalid-feedback d-block">{{ form.valid_from.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Valid To -->
+                        <div class="mb-4">
+                            <label for="{{ form.valid_to.id_for_label }}" class="form-label fw-bold">
+                                Valid To:
+                            </label>
+                            {{ form.valid_to }}
+                            {% if form.valid_to.errors %}
+                            <div class="invalid-feedback d-block">{{ form.valid_to.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Is Active -->
+                        <div class="mb-4">
+                            <label for="{{ form.is_active.id_for_label }}" class="form-label fw-bold">
+                                Status:
+                            </label>
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active
+                                </label>
+                            </div>
+                            {% if form.is_active.errors %}
+                            <div class="invalid-feedback d-block">{{ form.is_active.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Form Buttons -->
+                        <div class="mt-5">
+                            <button type="submit" class="btn btn-primary px-5">Submit</button>
+                            <a href="{% url 'coupon_list' %}" class="btn btn-secondary ms-3">Back</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+    .form-label {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        padding: 0.75rem;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+</style>
+
+{% endblock main %}

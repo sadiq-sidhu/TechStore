@@ -1,0 +1,109 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}Change Password{% endblock title %}
+
+{% block main_content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="justify-content-center m-5">
+        <h3 class="" >Welcome <span class="text-capitalize">{{request.user.username}} </span></h3>
+        <div class="col-sm-2 border-end">
+            <ul class="list-unstyled">
+                <li class="d-grid"><a href="{% url "profile" %}" class="btn">Profile</a> </li>
+                <li class="d-grid"><a href="{% url "change_email" %}" class="btn btn-primary">Change Email</a></li>
+                <li class="d-grid"><a href="{% url "profile_add_address" %}" class="btn">Add address</a> </li>
+                <li class="d-grid"><a href="{% url "view_address" %}" class="btn">Address</a></li>
+                <li class="d-grid"><a href="{% url "change_password" %}" class="btn">New password</a></li>
+            </ul>
+        </div> 
+        
+        <!-- section -->
+        <div class="col-sm-8 ">
+            <h4>Change Emails</h4>
+            <form action="" method="post" id="changeEmailForm">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="current_email" class="form-label">Current Email</label>
+                    <input type="email" class="form-control" id="current_email" value="{{ request.user.email }}" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="new_email" class="form-label">New Email</label>
+                    <input type="email" class="form-control" id="new_email" name="new_email" required {% if show_otp_input %}value="{{ new_email }}" readonly{% endif %}>
+                </div>
+                {% if show_otp_input %}
+                    <div class="mb-3">
+                        <label for="otp" class="form-label">Enter OTP</label>
+                        <input type="text" class="form-control" id="otp" name="otp" required>
+                    </div>
+                    <div id="timer" class="mb-3" >Time left: <span id="timeLeft"></span></div>
+                    <button type="submit" class="btn btn-primary" id="verifyOtpBtn">Verify OTP</button>
+                    <button type="button" class="btn btn-secondary" id="resendOtpBtn">Resend OTP</button>
+                {% else %}
+                    <button type="submit">Change Email</button>
+                {% endif %}
+            </form>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+    </div>
+</div>
+{% if show_otp_input %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var expiryTime = new Date("{{ otp_expiry|date:'c' }}").getTime();
+        var timerElement = document.getElementById('timeLeft');
+        var verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        var resendOtpBtn = document.getElementById('resendOtpBtn');
+
+        function updateTimer() {
+            var now = new Date().getTime();
+            var timeLeft = expiryTime - now;
+
+            if (timeLeft > 0) {
+                var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                timerElement.textContent = minutes + "m " + seconds + "s";
+            } else {
+                timerElement.textContent = "Expired";
+                verifyOtpBtn.disabled = true;
+            }
+        }
+
+        var timer = setInterval(updateTimer, 1000);
+        updateTimer(); // Call once immediately
+
+        resendOtpBtn.addEventListener('click', function() {
+            var form = document.getElementById('changeEmailForm');
+            var formData = new FormData(form);
+            formData.append('resend_otp', 'true');
+
+            fetch('{% url "change_email" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    expiryTime = new Date(data.otp_expiry).getTime();
+                    verifyOtpBtn.disabled = false;
+                    updateTimer();
+                }
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while resending OTP');
+            });
+        });
+    });
+</script>
+{% endif %}
+{% endblock main_content %}

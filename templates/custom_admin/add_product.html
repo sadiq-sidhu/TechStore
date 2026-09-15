@@ -1,0 +1,444 @@
+{% extends "custom_admin/admin_base.html" %}
+{% load static %}
+{% block title %}Add Product{% endblock title %}
+{% block main %}
+<section class="content-main">
+    <div class="row">
+        <div class="col-6">
+            <div class="content-header">
+                <h2 class="content-title">Add New Product</h2>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="product-form">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>1. General Info</h6>
+                            </div>
+                            <div class="col-md-9">
+                                {{ product_form.non_field_errors }}
+                                <div class="mb-4">
+                                    <label class="form-label">Product Name</label>
+                                    {{ product_form.product_name }}
+                                    {{ product_form.product_name.errors }}
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Description</label>
+                                    {{ product_form.description }}
+                                    {{ product_form.description.errors }}
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Brand</label>
+                                    {{ product_form.brand }}
+                                    {{ product_form.brand.errors }}
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Category</label>
+                                    {{ product_form.category }}
+                                    {{ product_form.category.errors }}
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-check-label">
+                                        <input type="checkbox" name="no_variants" id="no-variants"> No Variants
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="mb-4 mt-0">
+                        <div class="row variants-section" style="{% if product_form.no_variants %}display: none;{% endif %}">
+                            <div class="col-md-3">
+                                <h6>2. Variants</h6>
+                            </div>
+                            <div class="col-md-9">
+                                {{ variant_formset.management_form }}
+                                {{ variant_formset.non_form_errors }}
+                                <div id="variant-forms">
+                                    {% for form in variant_formset %}
+                                    <div class="variant-form mb-4 border p-3 formset-row" data-prefix="variants">
+                                        <h6>Variant {{ forloop.counter }}</h6>
+                                        {{ form.id }}
+                                        {{ form.DELETE }}
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Price</label>
+                                                {{ form.price }}
+                                                {{ form.price.errors }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Stock</label>
+                                                {{ form.stock }}
+                                                {{ form.stock.errors }}
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <label class="form-check-label">
+                                                    {{ form.is_default }} Is Default
+                                                </label>
+                                                {{ form.is_default.errors }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-check-label">
+                                                    {{ form.is_deleted }} Is Deleted
+                                                </label>
+                                                {{ form.is_deleted.errors }}
+                                            </div>
+                                        </div>
+                                        <div class="mb-4 mt-2">
+                                            <label class="form-label">Reorder Level</label>
+                                            {{ form.reorder_level }}
+                                            {{ form.reorder_level.errors }}
+                                        </div>
+                                        <div class="mb-4">
+                                            <h6>Variant Attributes</h6>
+                                            {% with va_formset=variant_attribute_formsets|slice:forloop.counter0|first %}
+                                            {{ va_formset.management_form }}
+                                            {% for va_form in va_formset %}
+                                            <div class="variant-attribute-form row mb-2">
+                                                <div class="col-md-5">
+                                                    <label class="form-label">Attribute</label>
+                                                    {{ va_form.attribute }}
+                                                    {{ va_form.attribute.errors }}
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <label class="form-label">Value</label>
+                                                    {{ va_form.attribute_value }}
+                                                    {{ va_form.attribute_value.errors }}
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" class="btn btn-danger btn-sm mt-4 remove-va-form">Remove</button>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                            <button type="button" class="btn btn-primary btn-sm add-va-form" data-prefix="variant-{{ forloop.counter0 }}-va">Add Attribute</button>
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm add-variant">Add Variant</button>
+                            </div>
+                        </div>
+                        <hr class="mb-4 mt-0">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>3. Attributes</h6>
+                            </div>
+                            <div class="col-md-9">
+                                {{ attribute_formset.management_form }}
+                                {{ attribute_formset.non_form_errors }}
+                                <div id="attribute-forms">
+                                    {% for form in attribute_formset %}
+                                    <div class="attribute-form mb-4 border p-3 formset-row" data-prefix="attributes">
+                                        {{ form.id }}
+                                        {{ form.DELETE }}
+                                        <div class="mb-4">
+                                            <label class="form-label">Attribute</label>
+                                            {{ form.attribute }}
+                                            {{ form.attribute.errors }}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label">Values</label>
+                                            {{ form.values }}
+                                            {{ form.values.errors }}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAttributeModal">Add New Attribute</button>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAttributeValueModal">Add New Attribute Value</button>
+                            </div>
+                        </div>
+                        <hr class="mb-4 mt-0">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>4. Media</h6>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-4">
+                                    <label class="form-label">Thumbnail</label>
+                                    {{ product_form.thumbnail }}
+                                    {{ product_form.thumbnail.errors }}
+                                    <div id="thumbnail-preview" class="mt-2" style="display: none;">
+                                        <img id="thumbnail-img" style="max-width: 200px;" alt="Thumbnail Preview">
+                                        <button type="button" class="btn btn-primary btn-sm mt-2 crop-btn" data-target="thumbnail">Crop Image</button>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Images</label>
+                                    {{ images_formset.management_form }}
+                                    {{ images_formset.non_form_errors }}
+                                    <div id="image-forms">
+                                        {% for form in images_formset %}
+                                        <div class="image-form mb-2 formset-row" data-prefix="images">
+                                            {{ form.id }}
+                                            {{ form.DELETE }}
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    {{ form.image }}
+                                                    {{ form.image.errors }}
+                                                    <div class="image-preview mt-2" style="display: none;">
+                                                        <img class="preview-img" style="max-width: 100px;" alt="Image Preview">
+                                                        <button type="button" class="btn btn-primary btn-sm mt-2 crop-btn" data-target="image-{{ forloop.counter0 }}">Crop Image</button>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    {{ form.variant }}
+                                                    {{ form.variant.errors }}
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-check-label">
+                                                        {{ form.is_default }} Default
+                                                    </label>
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" class="apply-to-all" name="apply-to-all-{{ forloop.counter0 }}"> Apply to All Variants
+                                                    </label>
+                                                    {{ form.is_default.errors }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" class="btn btn-primary btn-sm add-image">Add Image</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-md rounded font-sm hover-up">Publish</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop Modal -->
+    <div class="modal fade" id="cropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropModalLabel">Crop Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="img-container">
+                        <img id="crop-image" style="max-width: 100%;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="crop-btn">Crop and Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Attribute Modal -->
+    <div class="modal fade" id="addAttributeModal" tabindex="-1" aria-labelledby="addAttributeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAttributeModalLabel">Add New Attribute</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="attribute-form">
+                        {{ attribute_form.as_p }}
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Attribute Value Modal -->
+    <div class="modal fade" id="addAttributeValueModal" tabindex="-1" aria-labelledby="addAttributeValueModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAttributeValueModalLabel">Add New Attribute Value</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="attribute-value-form">
+                        {{ attribute_value_form.as_p }}
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Include Libraries -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Select2
+    $('.attribute-select, .attribute-value-select').select2({
+        placeholder: "Select an option",
+        allowClear: true,
+    });
+
+    // Dynamic attribute value loading
+    $(document).on('change', '.attribute-select', function () {
+        var $attributeSelect = $(this);
+        var $valueSelect = $attributeSelect.closest('.variant-attribute-form').find('.attribute-value-select');
+        var attributeId = $attributeSelect.val();
+
+        if (attributeId) {
+            $.getJSON('/get_attribute_values/' + attributeId + '/', function (data) {
+                $valueSelect.empty().append('<option value="">Select value</option>');
+                $.each(data.values, function (i, value) {
+                    $valueSelect.append('<option value="' + value.id + '">' + value.value + '</option>');
+                });
+                $valueSelect.trigger('change');
+            });
+        } else {
+            $valueSelect.empty().append('<option value="">Select value</option>').trigger('change');
+        }
+    });
+
+    // Dynamic formsets
+    $('.variant-form').formset({
+        prefix: '{{ variant_formset.prefix }}',
+        addText: 'Add Variant',
+        deleteText: 'Remove',
+        addCssClass: 'btn btn-primary btn-sm add-variant',
+        deleteCssClass: 'btn btn-danger btn-sm'
+    });
+
+    $('.image-form').formset({
+        prefix: '{{ images_formset.prefix }}',
+        addText: 'Add Image',
+        deleteText: 'Remove',
+        addCssClass: 'btn btn-primary btn-sm add-image',
+        deleteCssClass: 'btn btn-danger btn-sm'
+    });
+
+    // Variant attribute formset
+    $('.add-va-form').click(function () {
+        var prefix = $(this).data('prefix');
+        var formIdx = $(this).closest('.variant-form').find('.variant-attribute-form').length;
+        var $newForm = $('.variant-attribute-form:first').clone();
+        $newForm.find('select, input').each(function () {
+            var name = $(this).attr('name').replace(/-\d+-/, '-' + formIdx + '-');
+            $(this).attr('name', name);
+            $(this).val('');
+        });
+        $newForm.find('.select2-container').remove();
+        $newForm.find('.attribute-select, .attribute-value-select').select2({
+            placeholder: "Select an option",
+            allowClear: true,
+        });
+        $(this).before($newForm);
+    });
+
+    $(document).on('click', '.remove-va-form', function () {
+        $(this).closest('.variant-attribute-form').remove();
+    });
+
+    // Image cropping
+    let cropper;
+    let currentInput;
+    $('.crop-btn').click(function () {
+        currentInput = $(this).closest('.mb-4, .image-form').find('input[type="file"]');
+        var previewImg = $(this).siblings('img')[0];
+        if (previewImg.src) {
+            $('#crop-image').attr('src', previewImg.src);
+            $('#cropModal').modal('show');
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(document.getElementById('crop-image'), {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8,
+            });
+        }
+    });
+
+    $('#crop-btn').click(function () {
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 });
+        canvas.toBlob(function (blob) {
+            const formData = new FormData();
+            formData.append('image', blob, 'cropped_image.jpg');
+            formData.append('crop_data', JSON.stringify(cropper.getData()));
+
+            fetch("{% url 'crop_image' %}", {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(new File([blob], data.filename));
+                    currentInput[0].files = dataTransfer.files;
+                    currentInput.siblings('.image-preview, #thumbnail-preview').find('img').attr('src', URL.createObjectURL(blob)).parent().show();
+                    $('#cropModal').modal('hide');
+                } else {
+                    alert('Cropping failed: ' + data.error);
+                }
+            });
+        }, 'image/jpeg');
+    });
+
+    // Image preview
+    $(document).on('change', 'input[type="file"]', function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $(this).siblings('.image-preview, #thumbnail-preview').find('img').attr('src', e.target.result).parent().show();
+            }.bind(this);
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // No variants toggle
+    $('#no-variants').change(function () {
+        $('.variants-section').toggle(!this.checked);
+    });
+
+    // Attribute creation
+    $('#attribute-form').submit(function (e) {
+        e.preventDefault();
+        $.post("{% url 'create_attribute' %}", $(this).serialize(), function (data) {
+            if (data.success) {
+                $('select[name$="attribute"]').append('<option value="' + data.id + '">' + data.name + '</option>');
+                $('#addAttributeModal').modal('hide');
+                $('#attribute-form')[0].reset();
+            } else {
+                alert('Error: ' + JSON.stringify(data.errors));
+            }
+        });
+    });
+
+    $('#attribute-value-form').submit(function (e) {
+        e.preventDefault();
+        $.post("{% url 'create_attribute_value' %}", $(this).serialize(), function (data) {
+            if (data.success) {
+                $('select.attribute-value-select').each(function () {
+                    if ($(this).closest('.variant-attribute-form').find('.attribute-select').val() == data.attribute_id) {
+                        $(this).append('<option value="' + data.id + '">' + data.value + '</option>');
+                    }
+                });
+                $('#addAttributeValueModal').modal('hide');
+                $('#attribute-value-form')[0].reset();
+            } else {
+                alert('Error: ' + JSON.stringify(data.errors));
+            }
+        });
+    });
+});
+</script>
+{% endblock main %}

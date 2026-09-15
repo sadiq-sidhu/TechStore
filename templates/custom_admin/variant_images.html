@@ -1,0 +1,66 @@
+{% extends "custom_admin/admin_base.html" %}
+{% block title %}Manage Images - {{ variant.get_variant_name }}{% endblock %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Manage Images for {{ variant.get_variant_name }}</h2>
+        <div>
+            <a href="{% url 'product_manage_variants' product_id=variant.product.uid %}" class="btn btn-light">Back to Variants</a>
+        </div>
+    </div>
+    
+    {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Add New Image</h4>
+        </div>
+        <div class="card-body">
+            <a href="{% url 'variant_image_add' variant_id=variant.uid %}" class="btn btn-primary">
+                <i class="material-icons md-add"></i> Add Image
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h4>Existing Images ({{ images.count }})</h4>
+        </div>
+        <div class="card-body">
+            {% if images %}
+                <div class="row">
+                    {% for image in images %}
+                        <div class="col-md-3 mb-4">
+                            <div class="card">
+                                <img src="{{ image.image.url }}" class="card-img-top" alt="Variant image">
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        {% if image.is_default %}
+                                            <span class="badge bg-primary">Default</span>
+                                        {% endif %}
+                                        Order: {{ image.display_order }}
+                                    </p>
+                                    <div class="btn-group">
+                                        <a href="#" class="btn btn-sm btn-brand">Edit</a>
+                                        <a href="{% url 'variant_image_delete' image_id=image.uid %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this image?')">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No images uploaded for this variant yet.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

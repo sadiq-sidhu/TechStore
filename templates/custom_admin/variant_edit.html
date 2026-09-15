@@ -1,0 +1,60 @@
+{% extends "custom_admin/admin_base.html" %}
+{% block title %}Edit Variant - {{ variant.product.product_name }}{% endblock %}
+{% block main %}
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Edit Variant - {{ variant.get_variant_name }}</h2>
+        <div>
+            <a href="{% url 'product_manage_variants' product_id=variant.product.uid %}" class="btn btn-light">Back to Variants</a>
+        </div>
+    </div>
+    
+    {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    {% for field in form %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{% url 'product_manage_variants' product_id=variant.product.uid %}" class="btn btn-light">Cancel</a>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <h4>Variant Attributes</h4>
+            <ul class="list-group">
+                {% for attr in variant.variant_attributes.all %}
+                    <li class="list-group-item">
+                        <strong>{{ attr.attribute_value.attribute.name }}:</strong> 
+                        {{ attr.attribute_value.value }}
+                    </li>
+                {% endfor %}
+            </ul>
+            <p class="text-muted mt-3">Attributes cannot be changed after creation. Delete and recreate the variant if you need to modify attributes.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

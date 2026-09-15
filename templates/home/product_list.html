@@ -1,0 +1,53 @@
+{% for item in products %}
+<div class="col-md-4 col-xs-6">
+    <div class="product" style="display: flex; flex-direction: column; height: 400px;">
+        <div class="product-img" style="width: 100%; height: 200px; overflow: hidden; position: relative;">
+            {% if item.default_image %}
+            <img src="{{ item.default_image.image.url }}" alt="{{ item.product.product_name }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            {% else %}
+            <img src="" alt="No image" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            {% endif %}
+            {% if item.has_multiple_variants %}
+            <div class="product-label">
+                <span class="new"><i class="fa fa-clone"></i></span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="product-body" style="flex-grow: 1;">
+            <p class="product-category">{{ item.product.category.name }}</p>
+            <h3 class="product-name">
+                <a href="{% url 'get_product' item.product.product_slug %}{% if item.default_variant %}?variant={{ item.default_variant.uid }}{% endif %}">
+                    {{ item.product.product_name }}
+                </a>
+            </h3>            
+            <h4 class="product-price">
+                ₹{{ item.pricing.discounted_price|floatformat:2 }}
+                {% if item.pricing.has_offer %}
+                <del class="product-old-price">₹{{ item.pricing.original_price|floatformat:2 }}</del>
+                {% endif %}
+            </h4>
+            <div class="product-rating">
+                <!-- Add rating logic if applicable -->
+            </div>
+            <div class="product-btns">
+                <button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+                <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+            </div>
+        </div>
+        <div class="add-to-cart">
+            <form action="{% url 'add_cart' %}" method="POST">
+                {% csrf_token %}
+                {% if item.default_variant %}
+                <input type="hidden" name="variant_uid" value="{{ item.default_variant.uid }}">
+                {% endif %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="add-to-cart-btn" {% if item.default_variant and not item.default_variant.is_in_stock %}disabled{% endif %}>
+                    <i class="fa fa-shopping-cart"></i> add to cart
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% empty %}
+<p>No products found.</p>
+{% endfor %}
